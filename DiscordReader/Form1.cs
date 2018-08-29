@@ -11,19 +11,33 @@ namespace DiscordReader
     public partial class Form1 : Form
     {
 
-        // Win7以前はWebSocketに対応してないので、代わりにWS4Netを使って通信する
-        // OSを判別して使用するSocketを変更する条件分岐コードを追加したい
-        DiscordSocketClient client = new DiscordSocketClient(new DiscordSocketConfig
-        {
-            WebSocketProvider = WS4NetProvider.Instance,
-            //UdpSocketProvider = UDPClientProvider.Instance,
-        });
-
-
+        DiscordSocketClient client = new DiscordSocketClient();
 
         public Form1()
         {
+            Console.WriteLine("InitializeComponent()");
             InitializeComponent();
+
+
+            // Win7以前のOSはWebSocketに対応してないので、代わりにWS4Netを使って通信する
+
+            // OSのバージョン情報を取得する
+            System.OperatingSystem os = System.Environment.OSVersion;
+
+            // メジャーバージョンが5以下 または
+            // メジャーバージョンが6 かつ マイナーバージョンが1以下 ならばWin7以前のOS
+            if ((os.Version.Major <= 5) || (os.Version.Major == 6) && (os.Version.Minor <= 1))
+            {
+                Console.WriteLine("メジャーバージョン : " + os.Version.Major);
+                Console.WriteLine("マイナーバージョン : " + os.Version.Minor);
+                Console.WriteLine("OSがWin7以前");
+
+                client = new DiscordSocketClient(new DiscordSocketConfig
+                {
+                    WebSocketProvider = WS4NetProvider.Instance,
+                    //UdpSocketProvider = UDPClientProvider.Instance,
+                });
+            }
 
             // メッセージ受信時のイベントを追加
             client.MessageReceived += MessageReceived;
